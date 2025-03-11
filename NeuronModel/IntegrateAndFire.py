@@ -13,6 +13,6 @@ class IntegrateAndFire:
         
     def _model(self,t, V, I=0.5, tau=10, V_rest=-65, V_thresh=-50, V_reset=-70):
         if V >= V_thresh:
-            return V_reset - V  # Reset al potenziale di riposo dopo lo spike
+            return V_reset - V  
         dVdt = (-(V - V_rest) + I) / tau
         return dVdt

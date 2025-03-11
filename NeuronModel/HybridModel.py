@@ -6,7 +6,7 @@ from scipy.integrate import solve_ivp
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from GRUNetwork import GRUNetwork
+from NeuronModel.GRUNetwork import GRUNetwork
 
 
 class HybridModel_FN:
@@ -37,7 +37,7 @@ class HybridModel_FN:
         return np.concatenate([du, dv])
 
     #Forse non necessario
-    def _create_gru(self,input_size, output_size, hidden_size = 128, same_size = True, num_layers = 3):
+    def _create_gru(self,input_size, output_size, hidden_size = 64, same_size = True, num_layers = 3):
         self.input_size = input_size
         self.hidden_size = hidden_size
         if same_size:
@@ -71,14 +71,11 @@ class HybridModel_FN:
         return sol.t, sol.y.T
 
     def _prepare_data(self, data, seq_length=20, corrections = False):
-        # Transpose data to have time as first dimension
-        # Assuming data.shape is (2*N, time_points)
-         # Now shape (time_points, 2*N)
+        
         scaled_data = self.scaler.fit_transform(data)
-        # Prepare sequences
+        
         X, y = [], []
-        #controlla il len data e seq_data
-        # For each possible starting point
+        
        
         for i in range(len(data) - seq_length):
             X.append(data[i:i+seq_length])
@@ -90,7 +87,7 @@ class HybridModel_FN:
         return X,y
 
     def _split_train_test(self, X, y, train_ratio=0.8):
-        # Calculate split index
+      
         split_idx = int(len(X) * train_ratio)
         
         
@@ -98,8 +95,7 @@ class HybridModel_FN:
         # Split data
         X_train, X_test = X[:split_idx], X[split_idx:]
         y_train, y_test = y[:split_idx], y[split_idx:]
-        print ("id")
-        print(split_idx)
+     
         
         # Convert to PyTorch tensors
         X_train = torch.tensor(X_train,dtype=torch.float32)
@@ -146,11 +142,11 @@ class HybridModel_FN:
              method='RK45',
             vectorized = True
         )
-        penalty = np.mean(np.abs(sol.y - predicted.detach().numpy()))
+        penalty = np.mean(np.abs(sol.y.T - predicted.detach().numpy()))
         return penalty
 
     #ricorda di creare e passare modello + ottimizzatore
-    def _train(self, model, x_train, y_train, optimizer,epochs = 100 ):
+    def _train(self, model, x_train, y_train, optimizer,epochs = 100, restriction = False ):
         '''
         X_train, y_train, X_test, y_test, scaler = self._prepare_data(
         data,
@@ -164,7 +160,7 @@ class HybridModel_FN:
             outputs = model(x_train)
 
             # Hybrid loss calculation
-            loss = self._physical_loss(outputs, y_train)
+            loss = self._physical_loss(outputs, y_train, restriction=restriction)
 
             # Backpropagation
             loss.backward()
@@ -172,12 +168,7 @@ class HybridModel_FN:
 
             # Validation on test set: si sta facendo double dipping, meglio spezzare in valmode
             if (epoch + 1) % 20 == 0:
-                '''
-                model.eval()  # Set model to evaluation mode
-                with torch.no_grad():
-                    test_outputs = model(X_test)
-                    test_loss = self._physical_loss(test_outputs, y_test)
-                '''
+               
                 print(f'Epoch [{epoch+1}/{epochs}], '
                     f'Train Loss: {loss.item():.4f} ')
 
@@ -187,8 +178,7 @@ class HybridModel_FN:
         """
         Forecast using trained hybrid model
         """
-        # Set model to evaluation mode
-        #model.eval()
+        
         
         # Forecast
         with torch.no_grad():

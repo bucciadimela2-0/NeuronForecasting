@@ -10,8 +10,8 @@ class GRUNetwork(nn.Module):
         self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        # x shape dovrebbe essere [batch_size, sequence_length, input_size]
+       
         gru_out, _ = self.gru(x)
-        # Prendi l'ultimo output del GRU
+     
         out = self.fc(gru_out[:, -1, :])
         return out

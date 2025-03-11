@@ -1,7 +1,7 @@
 Other/
 Articles/
 __pycache__/
-NeuronModel/
+
 .Ds_Store
 __pycache__/GRUNetwork.cpython-38.pyc
   __pycache__/HybridModel_FN.cpython-38.pyc
