@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
-class fitzhughNagumo_model:
+class FitzhughNagumo_model:
     def __init__(self,N,epsilon,sigma, a, B, G):
         self.N = N
         self.sigma = sigma

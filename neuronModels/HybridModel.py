@@ -26,7 +26,7 @@ class HybridModel:
    
 
     def _prepare_data(self, data, seq_length=50, corrections = False):
-        
+        #FIXME :usare scaled_data e vedere che i modelli funzionano
         scaled_data = self.scaler.fit_transform(data)
         
         X, y = [], []
@@ -40,6 +40,7 @@ class HybridModel:
         y = np.array(y)
         
         return X,y
+        
 
     def _split_train_test(self, X, y, train_ratio=0.9):
       

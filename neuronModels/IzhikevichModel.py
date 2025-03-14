@@ -5,7 +5,6 @@ from scipy.integrate import solve_ivp
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-
 class izhikevich_model:
     def __init__(self, N, a, b, c, d, I, threshold=30):
         self.N = N  # Numero di neuroni
