@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
-class fitzhughNagumo:
+class fitzhughNagumo_model:
     def __init__(self,N,epsilon,sigma, a, B, G):
         self.N = N
         self.sigma = sigma
@@ -29,6 +29,30 @@ class fitzhughNagumo:
             du[k] = (u[k] - u[k]**3 / 3 - v[k] + coupling_u) / self.epsilon
             dv[k] = u[k] + self.a + coupling_v
         return np.concatenate([du, dv])
+    
+    #ha senso averlo qui? o lo metto nella classe specifica?
+    def _generate_synthetic_data(self, T=100, dt=0.1):
+        """
+        Generate training data using physical model
+        """
+        # Initial conditions
+        #mhm...
+        y0 = np.random.uniform(-1, 1, self.N * 2)
+
+
+        # Time evaluation points
+        t_eval = np.arange(0, T, dt)
+
+        # Solve the initial value problem
+        sol = solve_ivp(
+            self._model,
+            [0,T],
+            y0,
+            method='RK45',
+            t_eval=t_eval, vectorized= True
+        )
+
+        return sol.t, sol.y.T
 
 
         
