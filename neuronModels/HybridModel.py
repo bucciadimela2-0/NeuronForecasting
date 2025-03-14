@@ -5,8 +5,7 @@ import torch.nn as nn
 from scipy.integrate import solve_ivp
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-
-from NeuronModel.GRUNetwork import GRUNetwork
+from neuronModels.GRUNetwork import GRUNetwork
 
 
 class HybridModel:
