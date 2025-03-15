@@ -3,13 +3,15 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
-from neuronModels.FitzhughNagumoModel import FitzhughNagumoModel
+from neuronModels.EnhancedFitzhughNagumoModel import EnhancedFitzhughNagumoModel
 from neuronModels.GRUNetwork import GRUNetwork
+from neuronModels.EnhancedGRUNetwork import EnhancedGRUNetwork
 from utils.NoiseGenerator import NoiseGenerator
 from utils.DataHandler import DataHandler
 from utils.Plotter import Plotter
 from utils.Constants import Constants
 from utils.Logger import Logger, LogLevel
+from utils.ModelEvaluator import ModelEvaluator
 
 logger = Logger()
 
@@ -17,12 +19,17 @@ logger = Logger()
 def main():
     # Step 1: Generate synthetic data from the FitzHugh-Nagumo model
     logger.log("Starting error correction demonstration", LogLevel.INFO)
-    fn_model = FitzhughNagumoModel()
+    fn_model = EnhancedFitzhughNagumoModel(use_adaptive_params=True, noise_level=0.0)
     t_points, clean_data = fn_model._generate_synthetic_data(T=100, dt=0.1, use_saved_models=True)
     
     # Step 2: Add realistic measurement noise to simulate real-world data
     logger.log("Adding measurement noise to synthetic data", LogLevel.INFO)
     noisy_data = NoiseGenerator.add_measurement_noise(clean_data, noise_level=0.05, noise_type='gaussian')
+    
+    # Add more realistic biological noise
+    noisy_data = NoiseGenerator.add_pink_noise(noisy_data, noise_level=0.03)
+    noisy_data = NoiseGenerator.add_synaptic_noise(noisy_data, noise_level=0.02, tau=15)
+    noisy_data = NoiseGenerator.add_periodic_artifact(noisy_data, amplitude=0.02, frequency=0.05)
     
     # Also add some systematic error to make it more realistic
     noisy_data = NoiseGenerator.add_systematic_error(noisy_data, bias=0.02, drift_factor=0.001)
@@ -39,13 +46,21 @@ def main():
     X_train, y_train = error_X[:split_idx], error_y[:split_idx]
     X_test, y_test = error_X[split_idx:], error_y[split_idx:]
     
-    # Step 4: Create and train the GRU model for error correction
-    logger.log("Training GRU model for error correction", LogLevel.INFO)
+    # Step 4: Create and train the enhanced GRU model for error correction
+    logger.log("Training enhanced GRU model for error correction", LogLevel.INFO)
     input_size = X_train.shape[2]  # Number of features (neurons)
     hidden_size = 64
     output_size = y_train.shape[1]  # Number of output features
     
-    error_model = GRUNetwork(input_size, hidden_size, output_size)
+    # Use the enhanced GRU model with multiple layers, dropout and batch normalization
+    error_model = EnhancedGRUNetwork(
+        input_size=input_size, 
+        hidden_size=hidden_size, 
+        output_size=output_size,
+        num_layers=2,
+        dropout=0.2,
+        use_batch_norm=True
+    )
     optimizer = torch.optim.Adam(error_model.parameters(), lr=0.001)
     
     # Training loop
@@ -78,7 +93,29 @@ def main():
     corrected_data = noisy_test_data + predicted_errors
     clean_test_data = clean_data[test_idx:test_idx+len(predicted_errors)]
     
-    # Step 7: Visualize the results
+    # Step 7: Evaluate the error correction performance using comprehensive metrics
+    logger.log("Calculating comprehensive error metrics", LogLevel.INFO)
+    
+    # Calculate metrics for noisy data vs clean data
+    noisy_metrics = ModelEvaluator.evaluate_with_metrics(clean_test_data, noisy_test_data)
+    
+    # Calculate metrics for corrected data vs clean data
+    corrected_metrics = ModelEvaluator.evaluate_with_metrics(clean_test_data, corrected_data)
+    
+    # Print improvement across multiple metrics
+    logger.log("Error correction performance metrics:", LogLevel.INFO)
+    for metric in ['mse', 'rmse', 'mae', 'r2', 'correlation']:
+        if metric in noisy_metrics and metric in corrected_metrics:
+            if metric == 'r2' or metric == 'correlation':
+                # For these metrics, higher is better
+                improvement = (corrected_metrics[metric] - noisy_metrics[metric]) * 100
+                logger.log(f"{metric.upper()}: Noisy={noisy_metrics[metric]:.6f}, Corrected={corrected_metrics[metric]:.6f}, Improvement={improvement:.2f}%", LogLevel.INFO)
+            else:
+                # For error metrics, lower is better
+                improvement = (1 - corrected_metrics[metric] / noisy_metrics[metric]) * 100 if noisy_metrics[metric] != 0 else 0
+                logger.log(f"{metric.upper()}: Noisy={noisy_metrics[metric]:.6f}, Corrected={corrected_metrics[metric]:.6f}, Reduction={improvement:.2f}%", LogLevel.INFO)
+    
+    # Step 8: Visualize the results
     logger.log("Visualizing results", LogLevel.INFO)
     
     # Plot a sample neuron
@@ -97,14 +134,12 @@ def main():
     plt.tight_layout()
     plt.show()
     
-    # Calculate and print error metrics
-    noisy_mse = np.mean((noisy_test_data - clean_test_data) ** 2)
-    corrected_mse = np.mean((corrected_data - clean_test_data) ** 2)
-    improvement = (1 - corrected_mse / noisy_mse) * 100
-    
-    logger.log(f"Noisy data MSE: {noisy_mse:.6f}", LogLevel.INFO)
-    logger.log(f"Corrected data MSE: {corrected_mse:.6f}", LogLevel.INFO)
-    logger.log(f"Error reduction: {improvement:.2f}%", LogLevel.INFO)
+    # Use the ModelEvaluator to create diagnostic plots
+    ModelEvaluator.plot_prediction_quality(
+        clean_test_data, 
+        corrected_data, 
+        title="Error Correction Model Quality Assessment"
+    )
     
     # Also use the Plotter class to visualize multiple neurons
     Plotter.plot_data(data=clean_test_data, 
