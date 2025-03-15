@@ -1,8 +1,17 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 
+from utils.Constants import Constants
+
 class LifModel:
-    def __init__(self, N, tau, R, I, V_rest=-65, V_th=-50, V_reset=-70):
+
+    TAU=10.0
+    R=5.0
+    I=10.0
+    V_REST=-65        # Resting potential (mV)
+    V_TH=-55          # Threshold potential (mV) - adjusted for more frequent spikes
+    V_RESET=-75
+    def __init__(self, N = Constants.N, tau = TAU, R=R, I=I, V_rest=V_REST, V_th=V_TH, V_reset=V_RESET):
         self.N = N  # Numero di neuroni
         self.tau = tau  # Costante di tempo
         self.R = R  # Resistenza di membrana
@@ -22,7 +31,6 @@ class LifModel:
         """Simulazione del modello LIF con reset individuale"""
         t_points = np.arange(0, T, dt)
         V_points = np.full((len(t_points), self.N), self.V_rest)
-
         V_current = np.full(self.N, self.V_rest)
         
         for i, t in enumerate(t_points[:-1]):

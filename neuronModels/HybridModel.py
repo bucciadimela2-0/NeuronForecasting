@@ -32,9 +32,9 @@ class HybridModel:
         X, y = [], []
         
        
-        for i in range(len(data) - seq_length):
-            X.append(data[i:i+seq_length])
-            y.append(data[i+seq_length])
+        for i in range(len(scaled_data) - seq_length):
+            X.append(scaled_data[i:i+seq_length])
+            y.append(scaled_data[i+seq_length])
     
         X = np.array(X)
         y = np.array(y)
