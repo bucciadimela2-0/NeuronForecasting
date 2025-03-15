@@ -12,6 +12,5 @@ class GRUNetwork(nn.Module):
     def forward(self, x):
        
         gru_out, _ = self.gru(x)
-     
         out = self.fc(gru_out[:, -1, :])
         return out
