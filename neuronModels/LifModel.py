@@ -1,7 +1,8 @@
 import numpy as np
-from scipy.integrate import solve_ivp
 
+from neuronModels.PhysicsModels import PhysicsModels
 from utils.Constants import Constants
+
 
 class LifModel:
 

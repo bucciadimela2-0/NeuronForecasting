@@ -1,11 +1,10 @@
 import numpy as np
-import torch
-import torch.nn as nn
 from scipy.integrate import solve_ivp
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-class izhikevich_model:
+from neuronModels.PhysicsModels import PhysicsModels
+
+
+class izhikevich_model(PhysicsModels):
     def __init__(self, N, a, b, c, d, I, threshold=30):
         self.N = N  # Numero di neuroni
         self.a = a  # Parametro 'a'

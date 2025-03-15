@@ -2,17 +2,11 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from scipy.integrate import solve_ivp
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
 from neuronModels.GRUNetwork import GRUNetwork
 
 
 class HybridModel:
-    def __init__(self):
-        self.scaler = StandardScaler()
-        self.scaler2 = MinMaxScaler()
-        
 
     def _create_gru(self,input_size, output_size, hidden_size = 64, same_size = True, num_layers = 3):
         self.input_size = input_size
@@ -25,58 +19,8 @@ class HybridModel:
         return model
    
 
-    def _prepare_data(self, data, seq_length=50, corrections = False):
-        #FIXME :usare scaled_data e vedere che i modelli funzionano
-        scaled_data = self.scaler.fit_transform(data)
-        
-        X, y = [], []
-        
-       
-        for i in range(len(scaled_data) - seq_length):
-            X.append(scaled_data[i:i+seq_length])
-            y.append(scaled_data[i+seq_length])
-    
-        X = np.array(X)
-        y = np.array(y)
-        
-        return X,y
-        
-
-    def _split_train_test(self, X, y, train_ratio=0.9):
-      
-        split_idx = int(len(X) * train_ratio)
-        
-        
-        
-        # Split data
-        X_train, X_test = X[:split_idx], X[split_idx:]
-        y_train, y_test = y[:split_idx], y[split_idx:]
-     
-        
-        # Convert to PyTorch tensors
-        X_train = torch.tensor(X_train,dtype=torch.float32)
-        y_train = torch.tensor(y_train, dtype=torch.float32)
-        X_test = torch.tensor(X_test, dtype=torch.float32)
-        y_test = torch.tensor(y_test,dtype=torch.float32)
-        
-        return X_train, y_train, X_test, y_test
-
-    def create_error_sequences(self,model_data, true_data, seq_length=50):
-        model_data = self.scaler.transform(model_data)
-        true_data = self.scaler.transform(true_data)
-        error_sequences, error_targets = [], []
-        errors = true_data - model_data
-        for i in range(len(errors) - seq_length):
-            error_sequences.append(errors[i:i+seq_length])
-            error_targets.append(errors[i+seq_length])
-        return torch.tensor(np.array(error_sequences), dtype=torch.float32), torch.tensor(np.array(error_targets), dtype=torch.float32)
-
     def _train(self, model, x_train, y_train, optimizer,epochs = 100, restriction = False ):
-        '''
-        X_train, y_train, X_test, y_test, scaler = self._prepare_data(
-        data,
-        train_ratio=train_ratio)
-        '''
+       
 
         for epoch in range(epochs):
             model.train()  # Set model to training mode
@@ -114,7 +58,7 @@ class HybridModel:
             #corrected_predictions = self.scaler.transform(corrected_predictions)
             return corrected_predictions
 
-        #forecasted = self.scaler.transform(forecasted)
+        
       
         # Inverse transform
         return forecasted

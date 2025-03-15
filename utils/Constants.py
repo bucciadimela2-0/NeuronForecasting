@@ -1,4 +1,6 @@
 import numpy as np
+
+
 class Constants:
     N = 20  # Number of oscillators
     EPSILON = 0.05

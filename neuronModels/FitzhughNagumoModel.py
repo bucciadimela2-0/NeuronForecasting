@@ -1,13 +1,10 @@
-
 import numpy as np
-import torch
-import torch.nn as nn
 from scipy.integrate import solve_ivp
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+from neuronModels.PhysicsModels import PhysicsModels
 
 
-class FitzhughNagumo_model:
+class FitzhughNagumoModel(PhysicsModels):
     def __init__(self,N,epsilon,sigma, a, B, G):
         self.N = N
         self.sigma = sigma
