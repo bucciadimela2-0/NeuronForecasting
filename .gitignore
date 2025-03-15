@@ -1,7 +1,13 @@
+# Directory generiche
 Other/
 Articles/
+
+# File generati da Python
 __pycache__/
-shit.py
-.Ds_Store
-__pycache__/GRUNetwork.cpython-38.pyc
-  __pycache__/HybridModel_FN.cpython-38.pyc
+*.pyc
+*.pyo
+
+# File specifici del sistema operativo
+.DS_Store
+
+# File specifici
