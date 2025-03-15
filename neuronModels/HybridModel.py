@@ -11,7 +11,7 @@ from utils.Logger import Logger, LogLevel
 logger = Logger()
 class HybridModel:
 
-    MODEL_PATH="saved_models"
+    
 
     def _create_gru(self,input_size, output_size, hidden_size = 64, same_size = True, num_layers = 3):
         self.input_size = input_size
@@ -20,22 +20,22 @@ class HybridModel:
             self.output_size = input_size
 
         model = GRUNetwork(input_size, hidden_size, output_size)
+
+
+        logger.log("Created GRU network", LogLevel.INFO)
         
         return model
    
 
-    def _train(self, model, x_train, y_train, optimizer,epochs, model_name, use_saved_model=True):
-        '''
-        X_train, y_train, X_test, y_test, scaler = self._prepare_data(
-        data,
-        train_ratio=train_ratio)
-        '''
+    def _train(self, model, x_train, y_train, optimizer,epochs, model_name=None, use_saved_model=True):
+       
         #TODO controlla se la cartella dove salverai il modello esiste, nel caso creata 
-        logger.log(f"Creata la directory per salvare i modelli: {self.MODEL_PATH}")
+        #logger.log(f"Creata la directory per salvare i modelli: {self.MODEL_PATH}")
 
         #TODO se flag a true ed esiste il modello nella cartella caricalo
-        logger.log(f"Caricando modello salvato da {model_path}...")
+        #logger.log(f"Caricando modello salvato da {model_path}...")
 
+        logger.log("Training started..", LogLevel.INFO)
         for epoch in range(epochs):
             model.train()  # Set model to training mode
             optimizer.zero_grad()
@@ -52,9 +52,12 @@ class HybridModel:
                 logger.log(f'Epoch [{epoch+1}/{epochs}], '
                     f'Train Loss: {loss.item():.4f} ')
         
+        logger.log("Training ended", LogLevel.INFO)
         #TODO salva il modello
         
-        logger.log(f"Modello salvato in {model_path}")
+       # logger.log(f"Modello salvato in {model_path}")
+
+        
 
         return model
 
@@ -73,7 +76,7 @@ class HybridModel:
             #corrected_predictions = self.scaler.transform(corrected_predictions)
             return corrected_predictions
 
-        
+        logger.log("Predictions forecasted", LogLevel.INFO)
       
         # Inverse transform
         return forecasted

@@ -2,9 +2,12 @@ import numpy as np
 
 from neuronModels.PhysicsModels import PhysicsModels
 from utils.Constants import Constants
+from utils.Logger import Logger, LogLevel
+
+logger = Logger()
 
 
-class LifModel:
+class LifModel(PhysicsModels):
 
     TAU=10.0
     R=5.0
@@ -21,6 +24,7 @@ class LifModel:
         self.V_th = V_th  # Soglia
         self.V_reset = V_reset  # Reset dopo lo spike
         self.spikes = [[] for _ in range(N)]  # Lista degli spike per ogni neurone
+        logger.log("Instanitate LIF model", LogLevel.INFO)
 
     def _model(self, t, V):
         """Equazione differenziale del modello LIF"""
@@ -28,21 +32,25 @@ class LifModel:
         dVdt = (-(V - self.V_rest) + self.R * I_t) / self.tau
         return dVdt
 
-    def simulate(self, T=100, dt=0.1):
+    def _generate_synthetic_data(self, T=100, dt=0.1, use_saved_model = True):
         """Simulazione del modello LIF con reset individuale"""
-        t_points = np.arange(0, T, dt)
-        V_points = np.full((len(t_points), self.N), self.V_rest)
-        V_current = np.full(self.N, self.V_rest)
-        
-        for i, t in enumerate(t_points[:-1]):
-            V_next = V_current + dt * self._model(t, V_current)  # Eulero esplicito
+        if use_saved_model:
+            t_points, v_points = self._load_datas(Constants.LIF)
+        else:
+            t_points = np.arange(0, T, dt)
+            v_points = np.full((len(t_points), self.N), self.V_rest)
+            V_current = np.full(self.N, self.V_rest)
             
-            for j in range(self.N):
-                if V_next[j] >= self.V_th:  # Controllo della soglia
-                    self.spikes[j].append(t)
-                    V_next[j] = self.V_reset  # Reset del solo neurone che ha sparato
+            for i, t in enumerate(t_points[:-1]):
+                V_next = V_current + dt * self._model(t, V_current)  # Eulero esplicito
+                
+                for j in range(self.N):
+                    if V_next[j] >= self.V_th:  # Controllo della soglia
+                        self.spikes[j].append(t)
+                        V_next[j] = self.V_reset  # Reset del solo neurone che ha sparato
 
-            V_points[i + 1] = V_next
-            V_current = V_next
-        
-        return t_points, V_points
+                v_points[i + 1] = V_next
+                V_current = V_next
+            logger.log("Generated synthetic data for LIF model", LogLevel.INFO)
+            self._save_datas(Constants.LIF, t_points,v_points)
+        return t_points, v_points
