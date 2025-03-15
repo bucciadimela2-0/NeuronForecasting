@@ -44,6 +44,7 @@ class DataHandler:
         
         return X_train, y_train, X_test, y_test
     
+    @staticmethod
     def create_error_sequences(model_data, true_data, seq_length=50):
         scaler = StandardScaler()
         model_data = scaler.fit_transform(model_data)
