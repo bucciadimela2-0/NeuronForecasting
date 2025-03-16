@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 class Plotter:
     @staticmethod
-    def plot_data(data=None, forecasted=None, index=0, num_series=5, time_steps=200, 
+    def plot_data(data=None, forecasted=None, index=0, num_series=5, time_steps=100, 
                   var_name='u', title=None, figsize=(10, 5), y_test=None):
         """
         Unified plotting method for time series data

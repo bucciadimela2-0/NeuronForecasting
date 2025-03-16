@@ -46,8 +46,7 @@ class FitzhughNagumoModel(PhysicsModels):
         """
         Generate training data using physical model
         """
-        # Initial conditions
-        #mhm...
+        
         if use_saved_models:
             t_points, v_points = self._load_datas(Constants.FN)
         else: 
