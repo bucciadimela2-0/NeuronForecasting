@@ -9,23 +9,7 @@ class NoiseGenerator:
     
     @staticmethod
     def add_measurement_noise(data, noise_level=0.05, noise_type='gaussian'):
-        """
-        Add realistic measurement noise to synthetic data.
-        
-        Parameters:
-        -----------
-        data : numpy.ndarray
-            The synthetic data to which noise will be added
-        noise_level : float
-            The standard deviation of the noise relative to the data range
-        noise_type : str
-            The type of noise to add ('gaussian', 'uniform', or 'spike')
-            
-        Returns:
-        --------
-        numpy.ndarray
-            The data with added noise
-        """
+       
         if data is None or len(data) == 0:
             return data
             
@@ -58,23 +42,7 @@ class NoiseGenerator:
     
     @staticmethod
     def add_systematic_error(data, bias=0.02, drift_factor=0.001):
-        """
-        Add systematic errors like bias and drift to synthetic data.
         
-        Parameters:
-        -----------
-        data : numpy.ndarray
-            The synthetic data to which systematic errors will be added
-        bias : float
-            Constant offset as a fraction of data range
-        drift_factor : float
-            Rate of linear drift over time as a fraction of data range
-            
-        Returns:
-        --------
-        numpy.ndarray
-            The data with added systematic errors
-        """
         if data is None or len(data) == 0:
             return data
             
@@ -104,21 +72,7 @@ class NoiseGenerator:
     
     @staticmethod
     def add_pink_noise(data, noise_level=0.05):
-        """
-        Add pink noise (1/f noise) which is common in biological systems.
-        
-        Parameters:
-        -----------
-        data : numpy.ndarray
-            The synthetic data to which noise will be added
-        noise_level : float
-            The intensity of the noise relative to the data range
-            
-        Returns:
-        --------
-        numpy.ndarray
-            The data with added pink noise
-        """
+    
         if data is None or len(data) == 0:
             return data
             
@@ -165,24 +119,7 @@ class NoiseGenerator:
     
     @staticmethod
     def add_synaptic_noise(data, noise_level=0.03, tau=10):
-        """
-        Add synaptic noise which models random synaptic inputs to neurons.
-        This uses an Ornstein-Uhlenbeck process to generate temporally correlated noise.
         
-        Parameters:
-        -----------
-        data : numpy.ndarray
-            The synthetic data to which noise will be added
-        noise_level : float
-            The intensity of the noise relative to the data range
-        tau : float
-            Time constant for the Ornstein-Uhlenbeck process (in time steps)
-            
-        Returns:
-        --------
-        numpy.ndarray
-            The data with added synaptic noise
-        """
         if data is None or len(data) == 0:
             return data
             
@@ -219,25 +156,7 @@ class NoiseGenerator:
     
     @staticmethod
     def add_periodic_artifact(data, amplitude=0.04, frequency=0.1, phase=0):
-        """
-        Add periodic artifacts that mimic physiological rhythms (e.g., heartbeat, breathing).
-        
-        Parameters:
-        -----------
-        data : numpy.ndarray
-            The synthetic data to which artifacts will be added
-        amplitude : float
-            The amplitude of the periodic signal relative to the data range
-        frequency : float
-            The frequency of the periodic signal (cycles per time step)
-        phase : float
-            The phase offset of the periodic signal (in radians)
-            
-        Returns:
-        --------
-        numpy.ndarray
-            The data with added periodic artifacts
-        """
+      
         if data is None or len(data) == 0:
             return data
             

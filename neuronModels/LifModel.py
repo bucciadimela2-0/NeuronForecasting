@@ -27,13 +27,13 @@ class LifModel(PhysicsModels):
         logger.log("Instanitate LIF model", LogLevel.INFO)
 
     def _model(self, t, V):
-        """Equazione differenziale del modello LIF"""
+       
         I_t = self.I(t) if callable(self.I) else self.I
         dVdt = (-(V - self.V_rest) + self.R * I_t) / self.tau
         return dVdt
 
     def _generate_synthetic_data(self, T=100, dt=0.1, use_saved_model = True):
-        """Simulazione del modello LIF con reset individuale"""
+        
         if use_saved_model:
             t_points, v_points = self._load_datas(Constants.LIF)
         else:

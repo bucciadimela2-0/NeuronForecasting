@@ -23,7 +23,7 @@ class PhysicsModels(ABC):
     
 
     def _save_datas(self, model_name, t_points, v_points):
-        MODEL_PATH = os.path.join("neuronModels", "SavedModels", "_" + model_name)
+        MODEL_PATH = os.path.join("neuronModels", "SavedModels")
         
         # Creare la directory se non esiste
         os.makedirs(MODEL_PATH, exist_ok=True)
@@ -32,7 +32,7 @@ class PhysicsModels(ABC):
         np.savez(file_path, t_points=t_points, v_points=v_points)
 
     def _load_datas(self, model_name):
-        MODEL_PATH = os.path.join("neuronModels", "SavedModels", "_" + model_name)
+        MODEL_PATH = os.path.join("neuronModels", "SavedModels")
         
         
         file_path = os.path.join(MODEL_PATH, model_name + ".npz")
