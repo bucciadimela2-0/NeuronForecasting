@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 
 from neuronModels.GRUNetwork import GRUNetwork
+from utils.DataHandler import DataHandler
 from utils.Logger import Logger, LogLevel
 
 logger = Logger()
@@ -26,35 +27,38 @@ class HybridModel:
         return model
    
 
-    def _train(self, model, x_train, y_train, optimizer, epochs, model_name=None, use_saved_model=True, assimilation_window=None):
+    def _train(self, model, x_train, y_train, optimizer, epochs, model_name=None, use_saved_model=True, assimilation_window=None, model_dir = 'neuronModels/SavedModels'):
        
-        #TODO controlla se la cartella dove salverai il modello esiste, nel caso creata 
-        #logger.log(f"Creata la directory per salvare i modelli: {self.MODEL_PATH}")
+        if use_saved_model:
+            model_class = model.__class__ if isinstance(model, nn.Module) else model
+            model_path = os.path.join(model_dir, model_name)
+            model = DataHandler.load_model(model_class, model_path)
+           
+            
+            logger.log(f"Model loaded from: {model_path}", LogLevel.INFO)
 
-        #TODO se flag a true ed esiste il modello nella cartella caricalo
-        #logger.log(f"Caricando modello salvato da {model_path}...")
+        else:
 
-        logger.log("Training started..", LogLevel.INFO)
-        for epoch in range(epochs):
-            model.train()  # Set model to training mode
-            optimizer.zero_grad()
-            # Forward pass on training data
-            outputs = model(x_train)
+            logger.log("Training started..", LogLevel.INFO)
+            for epoch in range(epochs):
+                model.train()  # Set model to training mode
+                optimizer.zero_grad()
+                # Forward pass on training data
+                outputs = model(x_train)
 
-            loss = nn.MSELoss()(outputs, y_train)
-            # Backpropagation
-            loss.backward()
-            optimizer.step()
+                loss = nn.MSELoss()(outputs, y_train)
+                # Backpropagation
+                loss.backward()
+                optimizer.step()
 
-            # Validation on test set: si sta facendo double dipping, meglio spezzare in valmode
-            if (epoch + 1) % 20 == 0:
-                logger.log(f'Epoch [{epoch+1}/{epochs}], '
-                    f'Train Loss: {loss.item():.4f} ')
-        
-        logger.log("Training ended", LogLevel.INFO)
-        #TODO salva il modello
-        
-       # logger.log(f"Modello salvato in {model_path}")
+                # Validation on test set: si sta facendo double dipping, meglio spezzare in valmode
+                if (epoch + 1) % 20 == 0:
+                    logger.log(f'Epoch [{epoch+1}/{epochs}], '
+                        f'Train Loss: {loss.item():.4f} ')
+            
+            logger.log("Training ended", LogLevel.INFO)
+            DataHandler.save_model(model,model_name=model_name)
+       
 
         
 
@@ -64,26 +68,8 @@ class HybridModel:
         """
         Forecast using trained hybrid model with data assimilation and autonomous prediction.
         
-        Parameters:
-        -----------
-        model : GRUNetwork
-            The trained neural network model
-        x_test : torch.Tensor
-            Input sequences from physical model predictions
-        y_test : torch.Tensor
-            Target error corrections or true values
-        physical_predictions : numpy.ndarray, optional
-            Raw predictions from the physical model
-        assimilation_window : int, optional
-            Number of time steps for data assimilation during forecasting
-        autonomous_forecast : bool
-            Whether to run in autonomous mode after assimilation window
-            
-        Returns:
-        --------
-        numpy.ndarray
-            Corrected predictions from the hybrid model
-        """
+       """
+
         # Convert tensors to numpy for processing
         if isinstance(x_test, torch.Tensor):
             x_test_np = x_test.numpy()
@@ -122,7 +108,7 @@ class HybridModel:
                 
                 # Predict correction using the neural network
                 with torch.no_grad():
-                    print(current_input.shape)
+                    
                     correction = model(current_input).numpy()  # Get first batch prediction
                 
                 # Get physical model prediction and apply correction

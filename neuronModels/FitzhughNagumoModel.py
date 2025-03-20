@@ -5,13 +5,14 @@ from neuronModels.PhysicsModels import PhysicsModels
 from utils.Constants import Constants
 from utils.DataHandler import DataHandler
 from utils.Logger import Logger, LogLevel
+import matplotlib.pyplot as plt
 
 logger = Logger()
 
 
 class FitzhughNagumoModel(PhysicsModels):
     EPSILON = 0.05
-    SIGMA = 0.1  # Coupling strength
+    SIGMA = 0.2  # Coupling strength
     A = 0.5  # Threshold parameter
     PHI = np.pi / 2 + 0.1
     B = np.array([[np.cos(PHI), np.sin(PHI)], [-np.sin(PHI), np.cos(PHI)]])
@@ -41,7 +42,6 @@ class FitzhughNagumoModel(PhysicsModels):
             dv[k] = u[k] + self.a + coupling_v
         return np.concatenate([du, dv])
     
-    #ha senso averlo qui? o lo metto nella classe specifica?
     def _generate_synthetic_data(self, T=100, dt=0.1, use_saved_models = True):
         """
         Generate training data using physical model
@@ -54,10 +54,10 @@ class FitzhughNagumoModel(PhysicsModels):
             y0 = np.random.uniform(-1, 1, self.N * 2)
 
 
-            # Time evaluation points
+            
             t_eval = np.arange(0, T, dt)
 
-            # Solve the initial value problem
+          
             sol = solve_ivp(
                 self._model,
                 [0,T],
@@ -74,5 +74,5 @@ class FitzhughNagumoModel(PhysicsModels):
         return t_points, v_points
 
 
-        
+    
 
