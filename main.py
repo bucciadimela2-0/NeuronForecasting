@@ -67,7 +67,7 @@ def main():
         optimizer, 
         epochs=100, 
         model_name= Constants.FN + "_train", 
-        use_saved_model=False,
+        use_saved_model=True,
         assimilation_window=assimilation_window
     )
     
@@ -137,7 +137,7 @@ def main():
         optimizer, 
         epochs=100, 
         model_name=Constants.LIF + '_train', 
-        use_saved_model=False,
+        use_saved_model=True,
         assimilation_window=assimilation_window
     )
     
